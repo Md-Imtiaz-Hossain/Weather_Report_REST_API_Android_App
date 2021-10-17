@@ -1,6 +1,7 @@
 package com.imtiaz.weatherapiapp;
 
 import android.content.Context;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -57,8 +58,7 @@ class WeatherDataService {
                 volleyResponseListener.onError("Something Error");
             }
         });
-
-        // Add a request (in this example, called stringRequest) to your RequestQueue.
+        // Add a request in RequestQueue.
         MySingleton.getInstance(context).addToRequestQueue(request);
     }
 
@@ -111,18 +111,45 @@ class WeatherDataService {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
             }
         });
+        // Add a request in RequestQueue.
         MySingleton.getInstance(context).addToRequestQueue(request);
     }
 
 
-//
-//    public List<WeatherReportModel> getCityForecastByName(String cityName) {
-//
-//    }
-//
+    public interface GetCityForCastByNameCallback {
+        void onError(String message);
+
+        void onResponse(List<WeatherReportModel> weatherReportModel);
+    }
+
+    public void getCityForecastByName(String cityName, GetCityForCastByNameCallback getCityForCastByNameCallback) {
+
+        // fetch the city id given the city name
+        getCityId(cityName, new VolleyResponseListener() {
+            @Override
+            public void onError(String message) {
+                Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(String cityId) {
+                getCityForecastById(cityId, new ForCstByIdResponse() {
+                    @Override
+                    public void onError(String message) {
+                        Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(List<WeatherReportModel> weatherReportModel) {
+                        getCityForCastByNameCallback.onResponse(weatherReportModel);
+                    }
+                });
+            }
+        });
+    }
 
 
 }

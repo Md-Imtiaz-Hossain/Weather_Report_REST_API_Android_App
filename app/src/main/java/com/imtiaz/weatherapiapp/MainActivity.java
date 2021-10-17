@@ -39,15 +39,13 @@ public class MainActivity extends AppCompatActivity {
         btn_cityId = findViewById(R.id.btn_gerCityId);
         btn_getWeatherById = findViewById(R.id.btn_getWeatherByCityId);
         btn_getWeatherByName = findViewById(R.id.btn_getWeatherByCityName);
-
         et_dataInput = findViewById(R.id.et_dataInput);
-
         lv_weatherReport = findViewById(R.id.lv_weatherReport);
 
         WeatherDataService weatherDataService = new WeatherDataService(MainActivity.this);
 
 
-        // Click listeners for each button
+        // Click listeners for City Id button
         btn_cityId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -66,14 +64,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        // Click listeners for Weather by Id button
         btn_getWeatherById.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 weatherDataService.getCityForecastById(et_dataInput.getText().toString(), new WeatherDataService.ForCstByIdResponse() {
                     @Override
                     public void onError(String message) {
-
+                        Toast.makeText(MainActivity.this, "Something wrong ", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
@@ -86,10 +84,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        // Click listeners for Weather by Name button
         btn_getWeatherByName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this, "You typed " + et_dataInput.getText().toString(), Toast.LENGTH_SHORT).show();
+                weatherDataService.getCityForecastByName(et_dataInput.getText().toString(), new WeatherDataService.GetCityForCastByNameCallback() {
+                    @Override
+                    public void onError(String message) {
+                        Toast.makeText(MainActivity.this, "Something wrong ", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(List<WeatherReportModel> weatherReportModel) {
+                        ArrayAdapter arrayAdapter = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, weatherReportModel);
+                        lv_weatherReport.setAdapter(arrayAdapter);
+                    }
+                });
             }
         });
 
